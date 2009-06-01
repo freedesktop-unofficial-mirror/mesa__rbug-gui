@@ -1,0 +1,74 @@
+# autoconf directories
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+libdir      = @libdir@
+includedir  = @includedir@
+
+# autoconf variables
+CC          = @CC@
+MESA        = @MESA_DIR@
+CFLAGS      = @CFLAGS@ -Isrc @GTK_CFLAGS@ $(MESA_INCLUDES) -DDEBUG
+LDFLAGS     = @LDFLAGS@ @GTK_LIBS@ $(MESA_LIBS)
+
+# Makefile hardcoded
+MESA_INCLUDES = \
+	-I$(MESA)src/gallium/include \
+	-I$(MESA)src/gallium/auxiliary \
+	-I$(MESA)src/gallium/drivers
+
+MESA_LIBS     = \
+	$(MESA)src/gallium/auxiliary/rbug/librbug.a \
+	$(MESA)src/gallium/auxiliary/tgsi/libtgsi.a \
+	$(MESA)src/gallium/auxiliary/util/libutil.a
+
+
+
+TARGET  := rbug-gui
+ODIR    := .obj
+CDIR    := src
+
+CFILES   := $(wildcard $(CDIR)/*.c)
+OFILES   := $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(CFILES))
+DFILES   := $(patsubst $(CDIR)/%.c,$(ODIR)/%.d,$(CFILES))
+
+all: $(TARGET)
+
+run: $(TARGET)
+	@./$(TARGET) localhost
+
+debug: $(TARGET)
+	@gdb ./$(TARGET)
+
+valgrind: $(TARGET)
+	@valgrind --leak-check=full --track-origins=yes ./$(TARGET)
+
+$(ODIR):
+	@echo " :: creating $@ directory"
+	@mkdir -p $@
+
+$(TARGET): $(OFILES)
+	@echo " :: linking $@"
+	@$(CC) $^ $(LDFLAGS) -o $@
+
+$(OFILES): $(ODIR)/%.o: $(CDIR)/%.c Makefile
+	@echo " :: compiling $<"
+	@$(CC) $(CFLAGS) -o $@ -c $< -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+
+clean:
+	@echo " :: cleaning"
+	@-rm -rf $(ODIR) $(TARGET)
+
+distclean: clean
+	@-rm -rf aclocal.m4 autoscan.log autom4te.cache Makefile
+	@-rm -rf config.status config.log configure configure.scan
+
+install:
+	@echo " :: installing"
+	@install -d @exec_prefix@/bin
+	@install $(TARGET) @exec_prefix@/bin
+
+$(CFILES): $(ODIR)
+
+.PHONY: clean distclean run debug valgrind
+
+sinclude $(DFILES)
