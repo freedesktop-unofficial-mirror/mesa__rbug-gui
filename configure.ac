@@ -5,7 +5,7 @@ PKG_PROG_PKG_CONFIG()
 PKG_CHECK_MODULES(GTK,[gtkglext-1.0])
 
 if test $CC = gcc; then
-	GCC_CFLAGS+=" -Wall -W -Werror -Wstrict-prototypes -Wmissing-prototypes"
+	GCC_CFLAGS+=" -Wall -W -Werror -Wmissing-prototypes"
 	GCC_CFLAGS+=" -fvisibility=hidden -fPIC"
 	GCC_LDFLAGS=""
 
