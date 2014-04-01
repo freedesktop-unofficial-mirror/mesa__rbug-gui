@@ -12,12 +12,14 @@ LDFLAGS     = @LDFLAGS@ @GTK_LIBS@ $(MESA_LIBS)
 
 # Makefile hardcoded
 MESA_INCLUDES = \
+	-I$(MESA)/include \
 	-I$(MESA)src/gallium/include \
 	-I$(MESA)src/gallium/auxiliary \
 	-I$(MESA)src/gallium/drivers
 
 MESA_LIBS     = \
-	$(MESA)src/gallium/auxiliary/libgallium.a
+	-lm -ldl \
+	$(MESA)/src/gallium/auxiliary/.libs/libgallium.a
 
 TARGET  := rbug-gui
 ODIR    := .obj
