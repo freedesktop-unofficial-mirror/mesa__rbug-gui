@@ -18,8 +18,9 @@ MESA_INCLUDES = \
 	-I$(MESA)src/gallium/drivers
 
 MESA_LIBS     = \
-	-lm -ldl \
-	$(MESA)/src/gallium/auxiliary/.libs/libgallium.a
+	$(MESA)/src/gallium/auxiliary/.libs/libgallium.a \
+	$(MESA)/src/util/.libs/libmesautil.a \
+	-lm -ldl
 
 TARGET  := rbug-gui
 ODIR    := .obj
